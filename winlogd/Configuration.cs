@@ -35,6 +35,8 @@ namespace winlogd
         Error = 3,
         Warning = 4,
         Notice = 5,
+        AuditOk=5,
+        AuditFail=5,
         Information = 6
     }
 }

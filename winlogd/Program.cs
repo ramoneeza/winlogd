@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Linq;
+using System.Reflection;
 using System.Threading;
 using System.Threading.Tasks;
 using winlogd;
@@ -8,7 +9,7 @@ namespace winlogd
 {
     class Program
     {
-        public const string Version="0.0";
+        public static readonly string Version=Assembly.GetExecutingAssembly().GetName().Version.ToString();
 
         static async Task<int> Main(string[] args)
         {
@@ -100,20 +101,21 @@ namespace winlogd
             Console.WriteLine();
             Console.WriteLine("Options:");
             Console.WriteLine("  -h --help\tShow this help.");
-            Console.WriteLine("  -V --verbose\tVerbose mode.");
+            Console.WriteLine("  -v --verbose\tVerbose mode.");
             Console.WriteLine("  -d --daemon\tRun program without exit.");
             Console.WriteLine("  -t --test\tTest mode, doesn't forward events.");
+            Console.WriteLine("  -V --version\tShow program version");
             Console.WriteLine();
             Console.WriteLine("Parameters:");
             Console.WriteLine("  -s --server   [ip|name]   Syslog server address to forward.");
             Console.WriteLine("  -p --port     [int]       Syslog server port to forward.");
             Console.WriteLine("  -l --level    [level,...] Levels to forward:");
-            Console.WriteLine("                                Info    -> Informational Event");
-            Console.WriteLine("                                Warning -> Warning Message");
-            Console.WriteLine("                                Error   -> Error Message");
-            Console.WriteLine("                                Success -> Success Audit");
-            Console.WriteLine("                                Failure -> Failure Audit Event");
-            Console.WriteLine("                                All -> Any Event. Must be alone");
+            Console.WriteLine("                                Info     -> Informational Event");
+            Console.WriteLine("                                Warning  -> Warning Message");
+            Console.WriteLine("                                Error    -> Error Message");
+            Console.WriteLine("                                AuditOk  -> Success Audit");
+            Console.WriteLine("                                AuditFail-> Failure Audit Event");
+            Console.WriteLine("                                All      -> Any Event. Must be alone");
         }
 
     }

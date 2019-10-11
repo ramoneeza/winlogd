@@ -90,6 +90,12 @@ namespace winlogd
                 case EventLogEntryType.Information:
                     level = EventLevel.Information;
                     break;
+                case EventLogEntryType.SuccessAudit:
+                    level = EventLevel.AuditOk;
+                    break;
+                case EventLogEntryType.FailureAudit:
+                    level = EventLevel.AuditFail;
+                    break;
             }
 
             if (!Configuration.Levels.Contains(level))
