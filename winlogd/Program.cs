@@ -9,7 +9,7 @@ namespace winlogd
 {
     class Program
     {
-        public static readonly string Version=Assembly.GetExecutingAssembly().GetName().Version.ToString();
+        public static readonly string Version=string.Join(".",Assembly.GetExecutingAssembly().GetName().Version.ToString().Split('.').Take(3));
 
         static async Task<int> Main(string[] args)
         {
