@@ -13,9 +13,10 @@ b) Using Task Scheduler, make a new Task to start on system startup (like a serv
 ### Installing
 
 a) Copy executable to a folder
+
 b) Using Task Scheduler, make a new Task to start on system startup (like a service) 
 
-Can be used as simple consola app.
+Can be used as simple console app.
 
 winlogd -h
 
@@ -39,7 +40,7 @@ Parameters:
                                 Success -> Success Audit
                                 Failure -> Failure Audit Event
                                 All -> Any Event. Must be alone
-
+```
 ## Authors
 
 * Ramón Ordiales Plaza
