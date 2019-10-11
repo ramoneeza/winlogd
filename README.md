@@ -21,25 +21,26 @@ Can be used as simple console app.
 winlogd -h
 
 ```
-winlogd V:0.0. Windows Log Forward Daemon.
+winlogd V:1.0.0. EventLog to Syslog Forwarder Daemon.
 
 
 Options:
   -h --help     Show this help.
-  -V --verbose  Verbose mode.
+  -v --verbose  Verbose mode.
   -d --daemon   Run program without exit.
   -t --test     Test mode, doesn't forward events.
+  -V --version  Show program version
 
 Parameters:
   -s --server   [ip|name]   Syslog server address to forward.
   -p --port     [int]       Syslog server port to forward.
   -l --level    [level,...] Levels to forward:
-                                Info    -> Informational Event
-                                Warning -> Warning Message
-                                Error   -> Error Message
-                                Success -> Success Audit
-                                Failure -> Failure Audit Event
-                                All -> Any Event. Must be alone
+                                Info     -> Informational Event
+                                Warning  -> Warning Message
+                                Error    -> Error Message
+                                AuditOk  -> Success Audit
+                                AuditFail-> Failure Audit Event
+                                All      -> Any Event. Must be alone
 ```
 ## Authors
 
