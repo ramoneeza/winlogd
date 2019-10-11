@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 
-namespace winlogdcore
+namespace winlogd
 {
     public struct Configuration
     {

@@ -4,7 +4,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using winlogd;
 
-namespace winlogdcore
+namespace winlogd
 {
     class Program
     {
@@ -79,7 +79,7 @@ namespace winlogdcore
             action();
             return true;
         }
-        private static void Do_Version() => Console.WriteLine($"winlogdcore V:{Version}. Windows Log Forward Daemon.");
+        private static void Do_Version() => Console.WriteLine($"winlogd V:{Version}. EventLog to Syslog Forwarder Daemon.");
 
         private static string HasStr(string[] args, params string[] v)
         {
