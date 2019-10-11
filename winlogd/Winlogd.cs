@@ -1,16 +1,17 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Text;
 using System.Diagnostics;
-using System.Diagnostics.Eventing.Reader;
+using System.Linq;
 using System.Net.Sockets;
 using System.Security;
-using System.Security.Permissions;
+using System.Text;
+using System.Threading;
+using System.Threading.Tasks;
+using winlogdcore;
 
-namespace winlogdcore
+namespace winlogd
 {
     
-    public class Winlogd
+    public class Winlogd:IDisposable
     {
         private static readonly string[] _months = new string[]{"NUL","Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec" };
         public Configuration Configuration { get; }
@@ -19,20 +20,37 @@ namespace winlogdcore
         public Winlogd(Configuration configuration)
         {
             Configuration = configuration;
+            _exitevent= new AutoResetEvent(false);
+            SyslogServer = new UdpClient(int.Parse(Configuration.Port));
         }
 
         public UdpClient SyslogServer { get; private set; }
-        
-        public void Start()
+
+        private readonly AutoResetEvent _exitevent;
+
+        public async Task<int> Run()
+        {
+
+            Start();
+            try
+            {
+                //var res=await Task.Run(Loop);
+                await Task.Run(()=>_exitevent.WaitOne(-1));
+                Stop();
+                return 0;
+            }
+            catch
+            {
+                return 1;
+            }
+        }
+        private void Start()
         {
             if (Started) return;
-            SyslogServer = new UdpClient(int.Parse(Configuration.Port));
             // Attach Listener to each EventLog
-
-            var p = new EventLogPermission(EventLogPermissionAccess.Audit,".");
+            var p = new EventLogPermission(EventLogPermissionAccess.Administer,".");
             p.Demand();
             var mlogs = EventLog.GetEventLogs();
-
             foreach (var el in mlogs)
             {
                 try
@@ -51,15 +69,13 @@ namespace winlogdcore
                         Console.WriteLine(ex.Message);
                 }
             }
+            if (Configuration.Verbose) Console.WriteLine("Service Started...");
             Started = true;
         }
         
         private void EventHook(object sender, EntryWrittenEventArgs e)
         {
-            if (Configuration.Verbose)
-            {
-                Console.WriteLine($"New Event: {e.Entry.EntryType} {e.Entry.TimeGenerated:t} {e.Entry.MachineName} {e.Entry.Message}");
-            }
+            
             var msg = new StringBuilder();
             // Windows Only Has Error, Warning and Notice, FailureAudit and SuccessAudit
 
@@ -76,7 +92,18 @@ namespace winlogdcore
                     break;
             }
 
-            
+            if (!Configuration.Levels.Contains(level))
+            {
+                if (Configuration.Verbose)
+                    Console.WriteLine($"New Event with level {level} omitted");
+                return;
+            }
+
+            if (Configuration.Verbose)
+            {
+                Console.WriteLine($"New Event: {e.Entry.EntryType} {e.Entry.TimeGenerated:t} {e.Entry.MachineName} {e.Entry.Message}");
+            }
+
             // PRI
             var priority = 16 * 8 + (int) level;
             msg.Append($"<{priority}>");
@@ -112,7 +139,9 @@ namespace winlogdcore
             SyslogServer.Send(pkt, pkt.Length);
         }
 
-        public void Stop()
+        
+
+        private void Stop()
         {
             if (!Started) return;
             var mlogs = EventLog.GetEventLogs();
@@ -122,8 +151,20 @@ namespace winlogdcore
                 el.EntryWritten -= EventHook;
             }
             Started = false;
+        }
+
+        public void Dispose()
+        {
+            Exit();
+            _exitevent.Dispose();
             SyslogServer.Dispose();
         }
-        
+
+        public void Exit()
+        {
+            _exitevent.Set();
+            if (Started) Thread.Sleep(100);
+            Console.WriteLine("Service ended.");
+        }
     }
 }

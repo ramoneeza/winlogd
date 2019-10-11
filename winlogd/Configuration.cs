@@ -27,7 +27,7 @@ namespace winlogdcore
         }
 
 
-        public bool External { get; set; }
+        
     }
     public enum EventLevel
     {

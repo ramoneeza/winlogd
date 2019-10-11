@@ -6,9 +6,9 @@ using System.Runtime.InteropServices;
 // conjunto de atributos. Cambie estos valores de atributo para modificar la información
 // asociada a un ensamblado.
 [assembly: AssemblyTitle("winlogd")]
-[assembly: AssemblyDescription("")]
+[assembly: AssemblyDescription("Simple Windows Event to Syslog Forwarder")]
 [assembly: AssemblyConfiguration("")]
-[assembly: AssemblyCompany("")]
+[assembly: AssemblyCompany("Ramon Ordiales Plaza")]
 [assembly: AssemblyProduct("winlogd")]
 [assembly: AssemblyCopyright("Copyright ©  2019")]
 [assembly: AssemblyTrademark("")]

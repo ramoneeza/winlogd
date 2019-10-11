@@ -1,6 +1,8 @@
 ﻿using System;
 using System.Linq;
 using System.Threading;
+using System.Threading.Tasks;
+using winlogd;
 
 namespace winlogdcore
 {
@@ -8,7 +10,7 @@ namespace winlogdcore
     {
         public const string Version="0.0";
 
-        static int Main(string[] args)
+        static async Task<int> Main(string[] args)
         {
             args = args ?? Array.Empty<string>();
             if (args.Length == 0)
@@ -34,7 +36,6 @@ namespace winlogdcore
                 Test = Has(args, "-t", "--test"),
                 Server = HasStr(args, "-s", "--server") ?? "localhost",
                 Port = HasStr(args, "-p", "--port") ?? "514",
-                External = Has(args, "-e", "--external"),
                 Level = HasStr(args, "-l", "--level"),
                 Verbose = Has(args, "-v", "--verbose")
             };
@@ -45,34 +46,26 @@ namespace winlogdcore
                 Console.WriteLine($"Test:\t{configuracion.Test}");
                 Console.WriteLine($"Server:\t{configuracion.Server}");
                 Console.WriteLine($"Port:\t{configuracion.Port}");
-                Console.WriteLine($"External:\t{configuracion.External}");
                 Console.WriteLine($"Level:\t{configuracion.Level}");
                 Console.WriteLine($"Verbose:\t{configuracion.Verbose}");
             }
 
-            var service = new Winlogd(configuracion);
-            Console.CancelKeyPress += new ConsoleCancelEventHandler(DoCancel);
-            Console.WriteLine("CTRL+C to interrupt the daemon:");
-            ExitEvent = new AutoResetEvent(false);
-            var task = new Thread(() => service.Start());
-            task.Start();
-            while (service.Started)
+            using (Service = new Winlogd(configuracion))
             {
-                Thread.Sleep(0);
+                Console.CancelKeyPress += new ConsoleCancelEventHandler(DoCancel);
+                Console.WriteLine("CTRL+C to interrupt the daemon:");
+                int exitresult = await Service.Run();
+                Console.WriteLine("Closing the daemon");
+                return exitresult;
             }
-            
-        Console.WriteLine("Closing the daemon");
-            service.Stop();
-            return ExitResult;
         }
+
+        private static Winlogd Service;
 
         private static void DoCancel(object sender, ConsoleCancelEventArgs e)
         {
-            ExitEvent.Set();
+            Service.Exit();
         }
-
-        public static AutoResetEvent ExitEvent { get; set; }
-        public static int ExitResult { get; set; } = 0;
         private static bool HasUnique(string[] args, string v1, string v2, Action action, out int r)
         {
             r = 0;
@@ -114,7 +107,6 @@ namespace winlogdcore
             Console.WriteLine("Parameters:");
             Console.WriteLine("  -s --server   [ip|name]   Syslog server address to forward.");
             Console.WriteLine("  -p --port     [int]       Syslog server port to forward.");
-            Console.WriteLine("  -e --external [name]      Allow External Events. (It Adds computer name to facility)");
             Console.WriteLine("  -l --level    [level,...] Levels to forward:");
             Console.WriteLine("                                Info    -> Informational Event");
             Console.WriteLine("                                Warning -> Warning Message");
